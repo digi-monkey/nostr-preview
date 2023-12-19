@@ -24,21 +24,29 @@ impl<'a> Nostr<'a> {
         self.client
             .handle_notifications(|notification| async {
                 match notification {
-                    RelayPoolNotification::Event(_url, event) => {
-                        if event.id == id {
-                            let mut shared_data = shared_data.lock().unwrap();
-                            shared_data.push(event.clone());
-
-                            return Ok(true);
-                        } else {
-                            println!("invalid, {:#?}", event);
-                        }
-                    }
                     RelayPoolNotification::Stop => return Ok(true),
-                    RelayPoolNotification::Message(_url, relay_message) => {
-                        println!("{:#?}", relay_message);
-                        return Ok(true);
-                    }
+                    RelayPoolNotification::Message(_url, relay_message) => match relay_message {
+                        RelayMessage::Event {
+                            subscription_id: _,
+                            event,
+                        } => {
+                            if event.id == id {
+                                let mut shared_data = shared_data.lock().unwrap();
+                                shared_data.push(*event.clone());
+
+                                return Ok(true);
+                            } else {
+                                println!("invalid, {:#?}", event);
+                            }
+                        }
+                        RelayMessage::EndOfStoredEvents(_subscription_id) => return Ok(true),
+                        RelayMessage::Auth { challenge: _ } => return Ok(true),
+                        RelayMessage::Notice { message } => {
+                            println!("notice, {:#?}", message);
+                            return Ok(true);
+                        }
+                        _ => return Ok(false),
+                    },
                     _ => {}
                 }
 
