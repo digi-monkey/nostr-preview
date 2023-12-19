@@ -52,5 +52,7 @@ async fn main() {
     }
 
     let route = warp::path!("e" / String).and_then(get_event);
-    warp::serve(route).run(([127, 0, 0, 1], 3030)).await;
+    warp::serve(route)
+        .run(([0, 0, 0, 0, 0, 0, 0, 0], 8080))
+        .await;
 }
