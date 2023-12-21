@@ -1,8 +1,12 @@
+mod metadata;
 mod nostr;
-use std::convert::Infallible;
+mod relays;
 
+use metadata::Metadata;
 use nostr::Nostr;
 use nostr_sdk::prelude::*;
+use relays::RELAY_URLS;
+use std::{convert::Infallible, env};
 use warp::Filter;
 
 const BECH32_SK: &str = "nsec1ufnus6pju578ste3v90xd5m2decpuzpql2295m3sknqcjzyys9ls0qlc85";
@@ -16,22 +20,12 @@ async fn main() {
 
         let client = Client::new(&my_keys);
         let opt = RelayOptions::new().write(false);
-        client
-            .add_relay_with_opts("wss://relay.damus.io", None, opt.clone())
-            .await
-            .expect("");
-        client
-            .add_relay_with_opts("wss://nostr.wine", None, opt.clone())
-            .await
-            .expect("");
-        client
-            .add_relay_with_opts("wss://relay.nostr.info", None, opt.clone())
-            .await
-            .expect("");
-        client
-            .add_relay_with_opts("wss://relay.nostr.band", None, opt)
-            .await
-            .expect("");
+        for relay in RELAY_URLS {
+            client
+                .add_relay_with_opts(relay, None, opt.clone())
+                .await
+                .expect("");
+        }
 
         client.connect().await;
         println!("conencted!");
@@ -42,17 +36,25 @@ async fn main() {
             .await;
 
         match event {
-            Ok(event) => Ok(warp::reply::json(
-                &serde_json::json!({"status": "ok", "data": event}),
-            )),
+            Ok(event) => {
+                let handle = Metadata::new(&event);
+                Ok(warp::reply::json(
+                    &serde_json::json!({"status": "ok", "data": handle.to_meta()}),
+                ))
+            }
             Err(_err) => Ok(warp::reply::json(
                 &serde_json::json!({"status": "not found"}),
             )),
         }
     }
 
+    let default_port = 8080;
+    let port: u16 = env::var("PORT")
+        .ok()
+        .and_then(|s| s.parse().ok())
+        .unwrap_or(default_port);
     let route = warp::path!("e" / String).and_then(get_event);
     warp::serve(route)
-        .run(([0, 0, 0, 0, 0, 0, 0, 0], 8080))
+        .run(([0, 0, 0, 0, 0, 0, 0, 0], port))
         .await;
 }
