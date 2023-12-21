@@ -747,6 +747,7 @@ name = "nostr-preview"
 version = "0.1.0"
 dependencies = [
  "nostr-sdk",
+ "serde",
  "tokio",
  "warp",
 ]
