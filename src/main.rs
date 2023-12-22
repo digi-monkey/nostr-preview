@@ -35,7 +35,9 @@ async fn get_event(event_id: String) -> Result<impl warp::Reply, Infallible> {
                 }
                 Err(err) => {
                     println!("decode cache err: {:#?}", err);
-                    return Ok(warp::reply::json(&serde_json::json!({"status": "failed"})));
+                    return Ok(warp::reply::json(
+                        &serde_json::json!({"status": "decode from cache failed"}),
+                    ));
                 }
             };
         }

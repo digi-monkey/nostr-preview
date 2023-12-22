@@ -1,3 +1,5 @@
+use std::borrow::Cow;
+
 use nostr_sdk::prelude::*;
 use serde::{Deserialize, Serialize};
 
@@ -15,7 +17,7 @@ pub struct AuthorProfile<'a> {
 #[derive(Clone, Serialize, Deserialize)]
 pub struct Meta<'a> {
     title: String,
-    content: &'a str,
+    content: Cow<'a, str>,
     created_at: Timestamp,
     author: Option<AuthorProfile<'a>>,
     image: Option<&'a str>,
@@ -38,7 +40,7 @@ impl<'a> Metadata<'a> {
     pub fn to_meta(&self) -> Meta {
         let data = Meta {
             title: truncate(&self.event.content),
-            content: &self.event.content,
+            content: Cow::Borrowed(&self.event.content),
             created_at: self.event.created_at,
             author: None,
             image: None,
