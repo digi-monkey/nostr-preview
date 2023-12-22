@@ -28,7 +28,7 @@ async fn get_event(event_id: String) -> Result<impl warp::Reply, Infallible> {
             let json_val: Result<Meta, serde_json::Error> = serde_json::from_str(v.as_str());
             match json_val {
                 Ok(res) => {
-                    println!("hit cache for RocksDB: {:#?}", value_str);
+                    println!("hit cache: {:#?}", event_id.clone());
                     return Ok(warp::reply::json(
                         &serde_json::json!({"status": "ok", "data": res}),
                     ));
