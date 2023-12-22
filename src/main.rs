@@ -1,7 +1,9 @@
+mod db;
 mod metadata;
 mod nostr;
 mod relays;
 
+use db::*;
 use metadata::Metadata;
 use nostr::Nostr;
 use nostr_sdk::prelude::*;
@@ -13,6 +15,7 @@ const BECH32_SK: &str = "nsec1ufnus6pju578ste3v90xd5m2decpuzpql2295m3sknqcjzyys9
 
 #[tokio::main]
 async fn main() {
+    let db = open_db();
     // todo: reuse &client to save connections
     async fn get_event(event_id: String) -> Result<impl warp::Reply, Infallible> {
         let secret_key = SecretKey::from_bech32(BECH32_SK).expect("no key");
