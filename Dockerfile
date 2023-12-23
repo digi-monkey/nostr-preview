@@ -1,5 +1,10 @@
 FROM rust:latest as builder
 
+# Install libclang
+RUN apt-get update && \
+    apt-get install -y libclang-dev && \
+    rm -rf /var/lib/apt/lists/*
+
 WORKDIR /usr/src/app
 COPY . .
 # Will build and cache the binary and dependent crates in release mode
