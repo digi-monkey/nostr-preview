@@ -6,6 +6,10 @@
 app = "nostr-preview"
 primary_region = "hkg"
 
+[mounts]
+destination = "/rocksdb"
+source = "nostr_preview_rocksdb"
+
 [build]
 
 [http_service]
