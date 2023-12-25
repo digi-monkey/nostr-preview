@@ -1,5 +1,10 @@
 FROM rust:latest as builder
 
+# Install libclang
+RUN apt-get update && \
+    apt-get install -y libclang-dev && \
+    rm -rf /var/lib/apt/lists/*
+
 WORKDIR /usr/src/app
 COPY . .
 # Will build and cache the binary and dependent crates in release mode
@@ -8,7 +13,7 @@ RUN --mount=type=cache,target=/usr/local/cargo,from=rust:latest,source=/usr/loca
     cargo build --release && mv ./target/release/nostr-preview ./nostr-preview
 
 # Runtime image
-FROM debian:bullseye-slim
+FROM ubuntu
 
 # Run as "app" user
 RUN useradd -ms /bin/bash app
