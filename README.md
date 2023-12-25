@@ -6,7 +6,10 @@ the main point is that NostrPreview doesn't store the full event json but only t
 
 todo:
 - [x] get event by id
+- [x] store data on rocksdb
+- [ ] generate preview image on CPU
 - [ ] reuse relay connections
 - [ ] simple memory cache(LRU)
 - [ ] get replaceable event by addr
+- [ ] get profile event by pubkey
 - [ ] choose smart relays to fetch data instead of hardcode
